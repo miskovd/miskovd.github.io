@@ -23,30 +23,35 @@
     document.body.appendChild(renderer.domElement);
 
     const waveLength = 110;
+    const linesNumber = 7;
+    let geometries = [];
 
-
-    const points = [];
-    for (let i = 0; i < waveLength; i++) {
-      points.push(new THREE.Vector3(i * 0.3-15, 0, 0));
+    for(let g = 0; g<linesNumber; g++){
+      const points = [];
+      for (let i = 0; i < waveLength; i++) {
+        points.push(new THREE.Vector3(i * 0.3-15, 0, 0));
+      }
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      geometries[g] = geometry;
+      const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
+      const line = new THREE.Line(geometries[g], material);
+      scene.add(line);
     }
-
-    const geometry = new THREE.BufferGeometry().setFromPoints(points);
-    const material = new THREE.LineBasicMaterial({ color: 0x00ffff });
-    const line = new THREE.Line(geometry, material);
-    scene.add(line);
+    
 
 
     let clock = new THREE.Clock();
     function animate() {
-      const time = clock.getElapsedTime();
-      const positions = geometry.attributes.position.array;
-      for (let i = 0; i < waveLength; i++ ) {
-        let coordY = Math.sin(i * 0.1 + (-time) * 0.5) * (0.08*i); // y координата( 0.1 - amplituda, 0.5 - skorost)
-        //dbg.innerHTML = i;
-        positions[i * 3 + 1] = coordY;
+      for(let g = 0; g<linesNumber; g++){
+        const time = clock.getElapsedTime();
+        const positions = geometries[g].attributes.position.array;
+        for (let i = 0; i < waveLength; i++ ) {
+          let coordY = Math.sin((i+g*2) * 0.1 + (-time) * 0.5) * (0.08*i); // y координата( 0.1 - amplituda, 0.5 - skorost)
+          //dbg.innerHTML = i;
+          positions[i * 3 + 1] = coordY;
+        }
+        geometries[g].attributes.position.needsUpdate = true;
       }
-      geometry.attributes.position.needsUpdate = true;
-
       renderer.render(scene, camera);
       requestAnimationFrame(animate);
     }

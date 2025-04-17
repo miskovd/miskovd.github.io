@@ -29,7 +29,7 @@
     for(let g = 0; g<linesNumber; g++){
       const points = [];
       for (let i = 0; i < waveLength; i++) {
-        points.push(new THREE.Vector3(i * 0.3-15, 0, 0));
+        points.push(new THREE.Vector3(i * 0.3-15, -5+i*0.05, 0));//30% razmer linii i -15 smeschenie v levo, podnyatie linii Y na 10% s nijnego levogo ugla
       }
       const geometry = new THREE.BufferGeometry().setFromPoints(points);
       geometries[g] = geometry;
@@ -46,9 +46,14 @@
         const time = clock.getElapsedTime();
         const positions = geometries[g].attributes.position.array;
         for (let i = 0; i < waveLength; i++ ) {
-          let coordY = Math.sin((i+g*2) * 0.1 + (-time) * 0.5) * (0.08*i); // y координата( 0.1 - amplituda, 0.5 - skorost)
+          let angleY = -5.8+i*0.07;//Naklon
+          let coordY = Math.sin((i+g*2) 
+                      * 0.1 //amplituda
+                      + (-time) 
+                      * 0.5) //skorost
+                      * (0.07*i); //rasshirenie liniy
           //dbg.innerHTML = i;
-          positions[i * 3 + 1] = coordY;
+          positions[i * 3 + 1] = coordY+angleY;
         }
         geometries[g].attributes.position.needsUpdate = true;
       }

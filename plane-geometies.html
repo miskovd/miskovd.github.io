@@ -17,18 +17,17 @@
         }
         </script>
     <script type="module">
+      //https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83 - Noises algos
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        //import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { createNoise3D } from 'https://cdn.jsdelivr.net/npm/simplex-noise@4.0.1/+esm';
 
-        //const controls = new OrbitControls( camera, renderer.domElement );
-        //const loader = new GLTFLoader();
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
-        renderer.setAnimationLoop( animate );
+        //renderer.setAnimationLoop( animate );
         document.body.appendChild( renderer.domElement );
 
         //LIGHTS
@@ -44,7 +43,7 @@
         scene.add(light2);
 
 
-        const geometry = new THREE.PlaneGeometry( 3, 3, 20, 20 );
+        const geometry = new THREE.PlaneGeometry( 3, 3, 120, 120 );
         //const material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
         const material = new THREE.MeshPhongMaterial({
           color: 0xFF0000,    // red (can also use a CSS color string here)
@@ -58,29 +57,45 @@
 
         const pos = geometry.attributes.position;
         let number = pos.count;
-        //console.log(number);
         const controls = new OrbitControls( camera, renderer.domElement );
-        function animate() {
+        const noise3D = createNoise3D();
 
+
+        function animate(time) {
+          requestAnimationFrame(animate);
+          const t = time * 0.0005; // секунды
+          const freq = 1.5;
+          const amp = 0.25;
         // plane.rotation.x += 0.01;
         // plane.rotation.y += 0.01;
         // plane.rotation.z += 0.01;
         
-        let now = Date.now() / 300;
+        //let now = Date.now() / 300;
         for(let i = 0; i<number; i++){
           let x = pos.getX(i);
           let y = pos.getY(i);
-          let xsin = Math.sin(x*7.09 + now)*0.2;
-          let ycos = Math.cos(y*7.09 + now)*0.2;
-          pos.setZ(i, xsin+ycos);
+          // let xsin = Math.sin(x*7.09 + now)*0.2;
+          // let ycos = Math.cos(y*7.09 + now)*0.2;
+          // pos.setZ(i, xsin+ycos);
+          const z = noise3D(x * freq, y * freq, t) * amp;
+
+          // if (isNaN(z)) {
+          //   console.warn(`NaN detected at vertex ${i}: x=${x}, y=${y}, t=${t}`);
+          //   continue;
+          // }
+
+          pos.setZ(i, z);
         }
+        pos.needsUpdate = true;
         geometry.computeVertexNormals();
-        geometry.attributes.position.needsUpdate = true;
+        //geometry.attributes.position.needsUpdate = true;
 
         
         renderer.render( scene, camera );
-        requestAnimationFrame(animate);
+        //requestAnimationFrame(animate);
       }
+      //animate();
+      requestAnimationFrame(animate);
     </script>
   </body>
 </html>
